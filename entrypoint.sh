@@ -16,6 +16,7 @@ if [ ! -s /etc/zabbix/zabbix_server.conf ]; then
     [ -z ${ZABBIX_DBNAME+x} ] || sed -i -r -e "s/^DBName=.*$/DBName=${ZABBIX_DBNAME//\//\\\/}/" /etc/zabbix/zabbix_server.conf
     [ -z ${ZABBIX_DBUSER+x} ] || sed -i -r -e "s/^DBUser=.*$/DBUser=${ZABBIX_DBUSER//\//\\\/}/" /etc/zabbix/zabbix_server.conf
     [ -z ${ZABBIX_DBPASSWORD+x} ] || sed -i -r -e "s/^# DBPassword=.*$/DBPassword=${ZABBIX_DBPASSWORD//\//\\\/}/" /etc/zabbix/zabbix_server.conf
+    [ -z ${ZABBIX_PIDFILE+x} ] || sed -i -r -e "s/^# PidFile=.*$/PidFile=${ZABBIX_PIDFILE//\//\\\/}/" /etc/zabbix/zabbix_server.conf
 else
     echo "config file found at /etc/zabbix/zabbix_server.conf"
     # unset the 
@@ -38,6 +39,9 @@ else
     
     TMPVAR="$( egrep '^DBPassword=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBPASSWORD="$( echo "$TMPVAR" | sed -r -e 's/^DBPassword=(.*)$/\1/' )"
+    
+    TMPVAR="$( egrep '^PidFile=.*$' /etc/zabbix/zabbix_server.conf )"
+    [ -z "$TMPVAR" ] || ZABBIX_PidFile="$( echo "$TMPVAR" | sed -r -e 's/^PidFile=(.*)$/\1/' )"
 fi
 
 # if any of the vars is unset at this point, it means we're using the default value
@@ -45,14 +49,17 @@ ZABBIX_DBHOST="${ZABBIX_DBHOST-localhost}"
 ZABBIX_DBPORT="${ZABBIX_DBPORT-5432}"
 ZABBIX_DBNAME="${ZABBIX_DBNAME-zabbix}"
 ZABBIX_DBUSER="${ZABBIX_DBUSER-zabbix}"
+ZABBIX_PIDFILE="${ZABBIX_PIDFILE-/var/run/zabbix/zabbix_server.pid}"
+
 # yeah, the default password is empty. if it's set nothing will change, if it's not, it will get set to empty string
 ZABBIX_DBPASSWORD="$ZABBIX_DBPASSWORD"
 
 # inform
-echo "+- ZABBIX_DBHOST: $ZABBIX_DBHOST"
-echo "+- ZABBIX_DBPORT: $ZABBIX_DBPORT"
-echo "+- ZABBIX_DBNAME: $ZABBIX_DBNAME"
-echo "+- ZABBIX_DBUSER: $ZABBIX_DBUSER"
+echo "+- ZABBIX_DBHOST:  $ZABBIX_DBHOST"
+echo "+- ZABBIX_DBPORT:  $ZABBIX_DBPORT"
+echo "+- ZABBIX_DBNAME:  $ZABBIX_DBNAME"
+echo "+- ZABBIX_DBUSER:  $ZABBIX_DBUSER"
+echo "+- ZABBIX_PIDFILE: $ZABBIX_PIDFILE"
 
 # check if we have a database configured
 export PGPASSWORD="$ZABBIX_DBPASSWORD"
@@ -65,11 +72,11 @@ if ! psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_D
 fi
 
 # is the database empty?
-TCOUNT="$( echo "SELECT COUNT(*) = 0 FROM pg_catalog.pg_tables WHERE '$ZABBIX_DBNAME' NOT IN ('pg_catalog', 'information_schema');" | psql -Aqt -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" )"
+TCOUNT="$( echo "SELECT COUNT(*) = 0 FROM pg_catalog.pg_tables WHERE schemaname IN ('pg_catalog', 'information_schema');" | psql -Aqt -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" )"
 if [ "$TCOUNT" = "f" ]; then
     echo "database seems populated, not setting up"
 else
-    echo "database empty, setting up the database..."
+    echo "database empty, setting up the database, please be patient..."
     echo -n "+-- schema... "
     NUMQUERIES="$( gunzip -c /usr/share/zabbix-server-pgsql/schema.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
     echo "$NUMQUERIES queries executed."
@@ -85,21 +92,32 @@ fi
 # cleanup
 unset PGPASSWORD
 
-trap abort SIGHUP SIGINT SIGQUIT SIGTERM SIGSTOP SIGKILL
+trap "abort" SIGHUP SIGINT SIGQUIT SIGTERM SIGSTOP SIGKILL
 
 function abort {
-    [ -z $ZABBIX_PID ] || kill -TERM "$ZABBIX_PID"
     echo
     echo "* * * ABORTED * * *"
     echo
+    echo -n "killing ZABBIX_PID: "
+    cat "$ZABBIX_PIDFILE"
+    echo
+    [ -s $ZABBIX_PIDFILE ] || kill -TERM "$( cat "$ZABBIX_PIDFILE" )"
     exit 0
 }
 
 function run_zabbix {
+    echo "running zabbix..."
     zabbix_server -c /etc/zabbix/zabbix_server.conf
-    ZABBIX_PID="$!"
-    tail -f /var/log/zabbix-server/zabbix_server.log
+    echo -n "ZABBIX_PID: "
+    cat "$ZABBIX_PIDFILE"
+    echo
+    tail -f /var/log/zabbix-server/zabbix_server.log &
+    wait
 }
 
 # run the darn thing
-exec "$@"
+if [ "$@" = 'run_zabbix' ]; then
+    run_zabbix
+else
+    exec "$@"
+fi
