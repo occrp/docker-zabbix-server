@@ -5,7 +5,7 @@ MAINTAINER Michał "rysiek" Woźniak <rysiek@hackerspace.pl>
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
         zabbix-server-pgsql \
-        postgresql-client && \ # needed for debug, and for initial data import
+        postgresql-client && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
