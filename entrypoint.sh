@@ -25,19 +25,19 @@ else
     echo "retrieving database config"
     
     TMPVAR="$( egrep '^DBHost=.*$' /etc/zabbix/zabbix_server.conf )"
-    [ -z "$TMPVAR" ] || ZABBIX_DBHOST="$( echo "$TMPVAR" | sed -r -e 's/^DBHost=(.+)$/\1/' )"
+    [ -z "$TMPVAR" ] || ZABBIX_DBHOST="$( echo "$TMPVAR" | sed -r -e 's/^DBHost=(.*)$/\1/' )"
     
     TMPVAR="$( egrep '^DBPort=.*$' /etc/zabbix/zabbix_server.conf )"
-    [ -z "$TMPVAR" ] || ZABBIX_DBPORT="$( echo "$TMPVAR" | sed -r -e 's/^DBPort=(.+)$/\1/' )"
+    [ -z "$TMPVAR" ] || ZABBIX_DBPORT="$( echo "$TMPVAR" | sed -r -e 's/^DBPort=(.*)$/\1/' )"
     
     TMPVAR="$( egrep '^DBName=.*$' /etc/zabbix/zabbix_server.conf )"
-    [ -z "$TMPVAR" ] || ZABBIX_DBNAME="$( echo "$TMPVAR" | sed -r -e 's/^DBName=(.+)$/\1/' )"
+    [ -z "$TMPVAR" ] || ZABBIX_DBNAME="$( echo "$TMPVAR" | sed -r -e 's/^DBName=(.*)$/\1/' )"
     
     TMPVAR="$( egrep '^DBUser=.*$' /etc/zabbix/zabbix_server.conf )"
-    [ -z "$TMPVAR" ] || ZABBIX_DBUSER="$( echo "$TMPVAR" | sed -r -e 's/^DBUser=(.+)$/\1/' )"
+    [ -z "$TMPVAR" ] || ZABBIX_DBUSER="$( echo "$TMPVAR" | sed -r -e 's/^DBUser=(.*)$/\1/' )"
     
     TMPVAR="$( egrep '^DBPassword=.*$' /etc/zabbix/zabbix_server.conf )"
-    [ -z "$TMPVAR" ] || ZABBIX_DBPASSWORD="$( echo "$TMPVAR" | sed -r -e 's/^DBPassword=(.+)$/\1/' )"
+    [ -z "$TMPVAR" ] || ZABBIX_DBPASSWORD="$( echo "$TMPVAR" | sed -r -e 's/^DBPassword=(.*)$/\1/' )"
 fi
 
 # if any of the vars is unset at this point, it means we're using the default value
