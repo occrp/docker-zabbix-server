@@ -23,11 +23,11 @@ else
     unset -v ZABBIX_DBHOST ZABBIX_DBPORT ZABBIX_DBNAME ZABBIX_DBUSER ZABBIX_DBPASSWORD
     # let's get db connection data from the config file
     echo "retrieving database config"
-    ZABBIX_DBHOST="$( sed -r -e 's/^DBHost=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
-    ZABBIX_DBPORT="$( sed -r -e 's/^DBPort=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
-    ZABBIX_DBNAME="$( sed -r -e 's/^DBName=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
-    ZABBIX_DBUSER="$( sed -r -e 's/^DBUser=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
-    ZABBIX_DBPASSWORD="$( sed -r -e 's/^DBPassword=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
+    ZABBIX_DBHOST="$( egrep '^DBHost=.+$' /etc/zabbix/zabbix_server.conf | sed -r -e 's/^DBHost=(.+)$/\1/' )"
+    ZABBIX_DBPORT="$( egrep '^DBPort=.+$' /etc/zabbix/zabbix_server.conf | sed -r -e 's/^DBPort=(.+)$/\1/' )"
+    ZABBIX_DBNAME="$( egrep '^DBName=.+$' /etc/zabbix/zabbix_server.conf | sed -r -e 's/^DBName=(.+)$/\1/' )"
+    ZABBIX_DBUSER="$( egrep '^DBUser=.+$' /etc/zabbix/zabbix_server.conf | sed -r -e 's/^DBUser=(.+)$/\1/' )"
+    ZABBIX_DBPASSWORD="$( egrep '^DBPassword=.+$' /etc/zabbix/zabbix_server.conf | sed -r -e 's/^DBPassword=(.+)$/\1/' )"
 fi
 
 # if any of the vars is empty at this point, it means we're using the default value
