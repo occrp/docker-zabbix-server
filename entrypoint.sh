@@ -27,7 +27,7 @@ else
     TMPVAR="$( egrep '^DBHost=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBHOST="$( echo "$TMPVAR" | sed -r -e 's/^DBHost=(.+)$/\1/' )"
     
-    TMPVAR="$( egrep '^DBPort=*$' /etc/zabbix/zabbix_server.conf )"
+    TMPVAR="$( egrep '^DBPort=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBPORT="$( echo "$TMPVAR" | sed -r -e 's/^DBPort=(.+)$/\1/' )"
     
     TMPVAR="$( egrep '^DBName=.*$' /etc/zabbix/zabbix_server.conf )"
