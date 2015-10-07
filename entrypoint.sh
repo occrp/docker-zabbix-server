@@ -72,7 +72,7 @@ if ! psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_D
 fi
 
 # is the database empty?
-TCOUNT="$( echo "SELECT COUNT(*) = 0 FROM pg_catalog.pg_tables WHERE schemaname IN ('pg_catalog', 'information_schema');" | psql -Aqt -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" )"
+TCOUNT="$( echo "SELECT COUNT(*) = 0 FROM pg_catalog.pg_tables WHERE schemaname NOT IN ('pg_catalog', 'information_schema');" | psql -Aqt -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" )"
 if [ "$TCOUNT" = "f" ]; then
     echo "database seems populated, not setting up"
 else
@@ -111,8 +111,14 @@ function run_zabbix {
     echo -n "ZABBIX_PID: "
     cat "$ZABBIX_PIDFILE"
     echo
+    # making sure we have something in docker logs
     tail -f /var/log/zabbix-server/zabbix_server.log &
-    wait
+    # monitoring the zabbix process, in case it dies
+    # zabbix is nice enough to remove the pidfile, but why should we trust it entirely?
+    while [ -s $ZABBIX_PIDFILE ] && kill -0 "$( cat "$ZABBIX_PIDFILE" )" >/dev/null 2>&1; do
+        sleep 5;
+    done
+    exit 127
 }
 
 # run the darn thing
