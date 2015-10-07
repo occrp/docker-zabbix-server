@@ -18,5 +18,5 @@ RUN chmod a+x /entrypoint.sh
 VOLUME ["/var/log/zabbix-server", "/etc/zabbix/"]
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/bin/bash", "-c", "zabbix_server -c /etc/zabbix/zabbix_server.conf; exec tail -f /var/log/zabbix-server/zabbix_server.log"]
+CMD ["run_zabbix"]
 #    select ldap_bind_password from config;
