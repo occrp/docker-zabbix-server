@@ -22,7 +22,7 @@ else
     echo "ignoring any ZABBIX_DB environment variables"
     unset -v ZABBIX_DBHOST ZABBIX_DBPORT ZABBIX_DBNAME ZABBIX_DBUSER ZABBIX_DBPASSWORD
     # let's get db connection data from the config file
-    echo" retrieving database config"
+    echo "retrieving database config"
     ZABBIX_DBHOST="$( sed -r -e 's/^DBHost=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
     ZABBIX_DBPORT="$( sed -r -e 's/^DBPort=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
     ZABBIX_DBNAME="$( sed -r -e 's/^DBName=(.+)$/\1/' /etc/zabbix/zabbix_server.conf )"
