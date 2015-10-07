@@ -9,7 +9,7 @@
 # do we have a config file?
 if [ ! -s /etc/zabbix/zabbix_server.conf ]; then
     # no, we don't; let's fix it!
-    echo "config file not found at /etc/zabbix/zabbix_server.conf; recreating from the template"
+    echo "config file not found at /etc/zabbix/zabbix_server.conf; recreating from a template"
     cp /usr/share/zabbix-server-pgsql/zabbix_server.conf /etc/zabbix/zabbix_server.conf
     [ -z ${ZABBIX_DBHOST+x} ] || sed -i -r -e "s/^# DBHost=.*$/DBHost=${ZABBIX_DBHOST//\//\\\/}/" /etc/zabbix/zabbix_server.conf # If set to empty string, socket is used for PostgreSQL.
     [ -z ${ZABBIX_DBPORT+x} ] || sed -i -r -e "s/^# DBPort=.*$/DBPort=${ZABBIX_DBPORT//\//\\\/}/" /etc/zabbix/zabbix_server.conf
@@ -34,15 +34,20 @@ fi
 echo "+- ZABBIX_DBHOST: ${ZABBIX_DBHOST:='localhost'}"
 echo "+- ZABBIX_DBPORT: ${ZABBIX_DBPORT:='5432'}"
 echo "+- ZABBIX_DBHOST: ${ZABBIX_DBNAME:='zabbix'}"
-echo "+- ZABBIX_DBHOST: ${ZABBIX_DBUSER:='zabbix'}"
+echo "+- ZABBIX_DBUSER: ${ZABBIX_DBUSER:='zabbix'}"
 # yeah, the default password is empty. if it's set nothing will change, if it's not, it will get set to empty string
 ZABBIX_DBPASSWORD="$ZABBIX_DBPASSWORD"
 
 # check if we have a database configured
 PGPASSWORD="$ZABBIX_DBPASSWORD"
+echo "setting up the database..."
+echo "+-- schema..."
 gunzip -c /usr/share/zabbix-server-pgsql/schema.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT"
+echo "+-- images..."
 gunzip -c /usr/share/zabbix-server-pgsql/images.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" 
+echo "+-- data..."
 gunzip -c /usr/share/zabbix-server-pgsql/data.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT"
+echo "+-- done."
 
 # run the darn thing
 exec "$@"
