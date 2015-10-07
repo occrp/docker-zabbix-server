@@ -24,19 +24,19 @@ else
     # let's get db connection data from the config file
     echo "retrieving database config"
     
-    TMPVAR="$( egrep '^DBHost=.+$' /etc/zabbix/zabbix_server.conf )"
+    TMPVAR="$( egrep '^DBHost=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBHOST="$( echo "$TMPVAR" | sed -r -e 's/^DBHost=(.+)$/\1/' )"
     
-    TMPVAR="$( egrep '^DBPort=.+$' /etc/zabbix/zabbix_server.conf )"
+    TMPVAR="$( egrep '^DBPort=*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBPORT="$( echo "$TMPVAR" | sed -r -e 's/^DBPort=(.+)$/\1/' )"
     
-    TMPVAR="$( egrep '^DBName=.+$' /etc/zabbix/zabbix_server.conf )"
+    TMPVAR="$( egrep '^DBName=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBNAME="$( echo "$TMPVAR" | sed -r -e 's/^DBName=(.+)$/\1/' )"
     
-    TMPVAR="$( egrep '^DBUser=.+$' /etc/zabbix/zabbix_server.conf )"
+    TMPVAR="$( egrep '^DBUser=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBUSER="$( echo "$TMPVAR" | sed -r -e 's/^DBUser=(.+)$/\1/' )"
     
-    TMPVAR="$( egrep '^DBPassword=.+$' /etc/zabbix/zabbix_server.conf )"
+    TMPVAR="$( egrep '^DBPassword=.*$' /etc/zabbix/zabbix_server.conf )"
     [ -z "$TMPVAR" ] || ZABBIX_DBPASSWORD="$( echo "$TMPVAR" | sed -r -e 's/^DBPassword=(.+)$/\1/' )"
 fi
 
@@ -51,8 +51,8 @@ ZABBIX_DBPASSWORD="$ZABBIX_DBPASSWORD"
 # inform
 echo "+- ZABBIX_DBHOST: $ZABBIX_DBHOST"
 echo "+- ZABBIX_DBPORT: $ZABBIX_DBPORT"
-echo "+- ZABBIX_DBNAME: ${ZABBIX_DBNAME:='zabbix'}"
-echo "+- ZABBIX_DBUSER: ${ZABBIX_DBUSER:='zabbix'}"
+echo "+- ZABBIX_DBNAME: $ZABBIX_DBNAME"
+echo "+- ZABBIX_DBUSER: $ZABBIX_DBUSER"
 
 # check if we have a database configured
 PGPASSWORD="$ZABBIX_DBPASSWORD"
