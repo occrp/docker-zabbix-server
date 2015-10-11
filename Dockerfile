@@ -17,7 +17,7 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/var/log/zabbix-server", "/etc/zabbix/"]
 
-EXPOSE ["10051"]
+EXPOSE 10051
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["run_zabbix"]
