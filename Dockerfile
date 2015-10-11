@@ -17,6 +17,8 @@ RUN chmod a+x /entrypoint.sh
 
 VOLUME ["/var/log/zabbix-server", "/etc/zabbix/"]
 
+EXPOSE ["10051"]
+
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["run_zabbix"]
 #    select ldap_bind_password from config;
