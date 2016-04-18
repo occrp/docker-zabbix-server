@@ -78,14 +78,22 @@ if [ "$TCOUNT" = "f" ]; then
 else
     echo "database empty, setting up the database, please be patient..."
     echo -n "+-- schema... "
-    NUMQUERIES="$( gunzip -c /usr/share/zabbix-server-pgsql/schema.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
+    [ -s /usr/share/zabbix-server-pgsql/schema.sql.gz ] && gunzip -k /usr/share/zabbix-server-pgsql/schema.sql.gz
+    NUMQUERIES="$( cat /usr/share/zabbix-server-pgsql/schema.sql | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
     echo "$NUMQUERIES queries executed."
     echo -n "+-- images... "
-    NUMQUERIES="$( gunzip -c /usr/share/zabbix-server-pgsql/images.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
+    [ -s /usr/share/zabbix-server-pgsql/images.sql.gz ] && gunzip -k /usr/share/zabbix-server-pgsql/images.sql.gz
+    NUMQUERIES="$( cat /usr/share/zabbix-server-pgsql/images.sql | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
     echo "$NUMQUERIES queries executed."
     echo -n "+-- data... "
-    NUMQUERIES="$( gunzip -c /usr/share/zabbix-server-pgsql/data.sql.gz | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
+    [ -s /usr/share/zabbix-server-pgsql/data.sql.gz ] && gunzip -k /usr/share/zabbix-server-pgsql/data.sql.gz
+    NUMQUERIES="$( cat /usr/share/zabbix-server-pgsql/data.sql | psql -U "$ZABBIX_DBUSER" -h "$ZABBIX_DBHOST" -p "$ZABBIX_DBPORT" "$ZABBIX_DBNAME" | wc -l )"
     echo "$NUMQUERIES queries executed."
+    # cleanup, if needed
+    # if there is a *.gz file, that means that we gunzipped the sql files, and that we can safely remove them
+    [ -s /usr/share/zabbix-server-pgsql/schema.sql.gz ] && rm -f /usr/share/zabbix-server-pgsql/schema.sql
+    [ -s /usr/share/zabbix-server-pgsql/images.sql.gz ] && rm -f /usr/share/zabbix-server-pgsql/images.sql
+    [ -s /usr/share/zabbix-server-pgsql/data.sql.gz ] && rm -f /usr/share/zabbix-server-pgsql/data.sql
     echo "+-- done."
 fi
 
