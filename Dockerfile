@@ -5,7 +5,7 @@ MAINTAINER Michał "rysiek" Woźniak <rysiek@hackerspace.pl>
 # DEBUG Zabbix 2.4.x
 RUN cd /tmp/ && \
     apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y wget && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y wget dnsutils && \
     wget http://repo.zabbix.com/zabbix/2.4/debian/pool/main/z/zabbix-release/zabbix-release_2.4-1+jessie_all.deb && \
     dpkg -i zabbix-release_2.4-1+jessie_all.deb && \
     apt-get clean && \
